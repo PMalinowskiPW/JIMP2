@@ -16,12 +16,12 @@ char ** load_data(FILE *in, Maze *maze) {
         if (line == maze->rows)
             break;
     }
-
-    for (int i = 0; i < maze->rows; i++) {
+    
+    for (int i = 0; i < maze->rows; i++) { 
         printf("%s", arr[i]);
     }
 
-    return arr;
+    return arr; 
 }
 
 int is_crossing (int row, int col, char ** arr) {
@@ -36,21 +36,22 @@ int is_crossing (int row, int col, char ** arr) {
     return 1;
 }
 
-void transform_maze_format(FILE *in, FILE *out, Maze *maze) {
-     int line_counter;
+void fprint_maze_data (FILE *out, Maze * maze, int line_counter) {
+    fprintf(out, "%i %i %i %i %i %i %i", maze->rows, maze->cols, maze->P_r, maze->P_c, maze->K_r, maze->K_c, line_counter);
 
+    for (int i = 7; i < 14; i++)
+        fprintf(out, " 0");
+
+    fprintf(out,"\n");
+}
+
+
+void find_neighbours(int row, int col, int *line_counter, char ** arr, Maze * maze, FILE *out) {
+    int neighbours_counter = 2;
     int counter = 1;
-    int row, col;
-    row = col = 1;
 
-    char ** arr = load_data(in, maze);
-    fprint_Maze (out, maze);
- 
-    //jeśli początek znajduje się "w ścianie", to trzeba nadpisać go z użyciem innych zasad! todo
-
-    while (row < maze->rows) {
-        line_counter = 2;
-        if (is_crossing(row, col, arr)) {
+    if (is_crossing(row, col, arr)) {
+            *line_counter++; 
             fprintf(out, "%i %i ", row, col);
         
             //up
@@ -58,7 +59,7 @@ void transform_maze_format(FILE *in, FILE *out, Maze *maze) {
                 //wyjątek -> zamiast ściany jest 'K', czyli wyjście z labiryntu, przyjmujemy wagę "w ścianę" = 1
                 if (arr[row - counter][col] == 'K') {
                     fprintf(out, "%i %i %i", row - counter, col, 1);
-                    line_counter += 3;
+                    neighbours_counter += 3;
                     break;
                 }
                 
@@ -67,7 +68,7 @@ void transform_maze_format(FILE *in, FILE *out, Maze *maze) {
                         break;
                 } else if (is_crossing(row - counter +1, col, arr)) {
                         fprintf(out, "%i %i %i ", row - counter +1, col, (counter -1)/2);
-                        line_counter += 3;
+                        neighbours_counter += 3;
                         break;
                 }
                 //jeśli nie ma ściany ani nie jest skrzyżowaniem, to szukamy wyżej 
@@ -80,7 +81,7 @@ void transform_maze_format(FILE *in, FILE *out, Maze *maze) {
             while ( col + counter <= maze->cols ) {
                     if (arr[row][col + counter] == 'K') {
                         fprintf(out, "%i %i %i ", row, col + counter, 1);
-                        line_counter += 3;
+                        neighbours_counter += 3;
                         break;
                     }
                     
@@ -89,7 +90,7 @@ void transform_maze_format(FILE *in, FILE *out, Maze *maze) {
                             break;
                     } else if (is_crossing(row, col + counter -1, arr)) {
                             fprintf(out, "%i %i %i ", row, col + counter -1, (counter-1)/2);
-                            line_counter += 3;
+                            neighbours_counter += 3;
                             break;
                     }
                 counter += 2; 
@@ -100,7 +101,7 @@ void transform_maze_format(FILE *in, FILE *out, Maze *maze) {
             while ( row + counter <= maze->rows ) {
                 if (arr[row + counter][col] == 'K') {
                     fprintf(out, "%i %i %i ", row + counter, col, 1);
-                    line_counter += 3;
+                    neighbours_counter += 3;
                     break;
                 }
 
@@ -109,7 +110,7 @@ void transform_maze_format(FILE *in, FILE *out, Maze *maze) {
                         break;
                 } else if (is_crossing(row + counter -1, col, arr)) {
                         fprintf(out, "%i %i %i ", row + counter -1, col, (counter -1)/2);
-                        line_counter += 3;
+                        neighbours_counter += 3;
                         break;
                 }
                 counter += 2; 
@@ -121,7 +122,7 @@ void transform_maze_format(FILE *in, FILE *out, Maze *maze) {
             while ( col - counter >= 0) {
                 if (arr[row][col - counter] == 'K') {
                     fprintf(out, "%i %i %i ", row, col - counter, 1);
-                    line_counter += 3;
+                    neighbours_counter += 3;
                     break;
                 }
                 if (counter == 1) {
@@ -129,24 +130,58 @@ void transform_maze_format(FILE *in, FILE *out, Maze *maze) {
                         break;
                 } else if (is_crossing(row, col - counter +1, arr)) {
                         fprintf(out, "%i %i %i ", row, col - counter +1, (counter -1)/2);
-                        line_counter += 3;
+                        neighbours_counter += 3;
                         break;
                 }
                 counter += 2; 
             }
             counter = 1;
             
-            for (int i = line_counter; i < 14; i++)
+            for (int i = neighbours_counter; i < 14; i++)
                 fprintf(out, "0 ");
 
             fprintf(out, "\n");
         }
+}
+
+
+void transform_maze_format(FILE *in, FILE *out, Maze *maze) {
+    int line_counter = 1; 
+    int row, col;
+    row = col = 1;
+
+    char ** arr = load_data(in, maze);
+
+    while (row < maze->rows) {
+        if (is_crossing(row, col, arr));
+            line_counter++;
         
         if (col == maze->cols -2){
             col = 1;
             row += 2; 
         } else 
             col += 2;
+    }
 
+    fprint_maze_data (out, maze, line_counter);
+
+    row = col = 1;
+    while (row < maze->rows) {
+        //dla 'P' w górnej i lewej ścianie
+        if ((row -1 == maze->P_r && col == maze->P_c) || (row == maze->P_r && col -1 == maze->P_c))
+            fprintf(out, "%i %i %i %i 1 0 0 0 0 0 0 0 0 0\n", maze->P_r, maze->P_c, row, col);
+
+        //dla skrzyżowań 
+        find_neighbours(row, col, &line_counter, arr, maze, out);
+
+        //dla 'P' w prawej i dolnej ścianie
+        if ((row +1 == maze->P_r && col == maze->P_c) || (row == maze->P_r && col +1 == maze->P_c))
+            fprintf(out, "%i %i %i %i 1 0 0 0 0 0 0 0 0 0\n", maze->P_r, maze->P_c, row, col);
+        
+        if (col == maze->cols -2){
+            col = 1;
+            row += 2; 
+        } else 
+            col += 2;
     }
 }

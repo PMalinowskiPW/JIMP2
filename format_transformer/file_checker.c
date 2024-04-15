@@ -57,7 +57,6 @@ int check_buff_errors (char * buffer, int line, Maze * maze) {
     return 0;
 }
 
-
 //check_file sprawdza, czy w pliku występują błędy i nadpisuje dane w strukturze Maze
 //zwraca -1 w przypadku wystąpienia błędu pliku i 0 w przypadku poprawnego formatu
 int check_file (FILE *in, Maze * maze) {
@@ -68,7 +67,7 @@ int check_file (FILE *in, Maze * maze) {
         fprintf(stderr, "Błąd: plik wejściowy jest pusty.\n");
         return -1;
     }
-
+       
     maze->cols= strlen(buffer)-1;
     printf("liczba kolumn: %i\n\n", maze->cols);
 
@@ -79,7 +78,7 @@ int check_file (FILE *in, Maze * maze) {
 
     if (check_buff_errors(buffer, line, maze) != 0)
         return -1;
-
+        
     while (fgets (buffer, BUFFSIZE, in)) {
         line ++;
 
@@ -91,4 +90,3 @@ int check_file (FILE *in, Maze * maze) {
 
     return 0;
  }
-
