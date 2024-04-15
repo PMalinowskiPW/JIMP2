@@ -7,8 +7,8 @@
 #include "file_checker.h"
 
 int main (int argc, char ** argv) {
-    FILE * in = argc > 1 ? fopen(argv[1], "r") : fopen("data/maze.txt", "r");
-    FILE * out =  fopen("data/adjacency_list.txt", "w");
+    FILE * in = argc > 1 ? fopen(argv[1], "r") : fopen("maze.txt", "r");
+    FILE * out =  fopen("adjacency_list.txt", "w");
 
     Maze maze = initialize_Maze();
     int result;
@@ -23,8 +23,8 @@ int main (int argc, char ** argv) {
 
     fclose(in);
 
-    in = argc > 1 ? fopen(argv[1], "r") : fopen("data/maze.txt", "r");
-
+    in = argc > 1 ? fopen(argv[1], "r") : fopen("maze.txt", "r");
+    
     transform_maze_format(in, out, &maze);
 
     fclose(in);

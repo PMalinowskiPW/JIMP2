@@ -89,4 +89,4 @@ int check_file (FILE *in, Maze * maze) {
     maze->rows = line +1;
 
     return 0;
- }
+}

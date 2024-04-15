@@ -36,28 +36,18 @@ int is_crossing (int row, int col, char ** arr) {
     return 1;
 }
 
-void fprint_maze_data (FILE *out, Maze * maze, int line_counter) {
-    fprintf(out, "%i %i %i %i %i %i %i", maze->rows, maze->cols, maze->P_r, maze->P_c, maze->K_r, maze->K_c, line_counter);
 
-    for (int i = 7; i < 14; i++)
-        fprintf(out, " 0");
-
-    fprintf(out,"\n");
-}
-
-
-void find_neighbours(int row, int col, int *line_counter, char ** arr, Maze * maze, FILE *out) {
+void find_neighbours(int row, int col, char ** arr, Maze * maze, FILE *out) {
     int neighbours_counter = 2;
     int counter = 1;
 
     if (is_crossing(row, col, arr)) {
-            *line_counter++; 
             fprintf(out, "%i %i ", row, col);
         
             //up
             while ( row - counter >= 0 ) {
-                //wyjątek -> zamiast ściany jest 'K', czyli wyjście z labiryntu, przyjmujemy wagę "w ścianę" = 1
-                if (arr[row - counter][col] == 'K') {
+                //wyjątek -> zamiast ściany jest 'K' lub 'P' przyjmujemy wagę "w ścianę" = 1
+                if (arr[row - counter][col] == 'K' || arr[row - counter][col] == 'P') {
                     fprintf(out, "%i %i %i", row - counter, col, 1);
                     neighbours_counter += 3;
                     break;
@@ -79,7 +69,7 @@ void find_neighbours(int row, int col, int *line_counter, char ** arr, Maze * ma
 
             //right
             while ( col + counter <= maze->cols ) {
-                    if (arr[row][col + counter] == 'K') {
+                    if (arr[row][col + counter] == 'K' || arr[row][col + counter] == 'P') {
                         fprintf(out, "%i %i %i ", row, col + counter, 1);
                         neighbours_counter += 3;
                         break;
@@ -99,7 +89,7 @@ void find_neighbours(int row, int col, int *line_counter, char ** arr, Maze * ma
     
             //down
             while ( row + counter <= maze->rows ) {
-                if (arr[row + counter][col] == 'K') {
+                if (arr[row + counter][col] == 'K' || arr[row + counter][col] == 'P') {
                     fprintf(out, "%i %i %i ", row + counter, col, 1);
                     neighbours_counter += 3;
                     break;
@@ -120,7 +110,7 @@ void find_neighbours(int row, int col, int *line_counter, char ** arr, Maze * ma
     
             //left
             while ( col - counter >= 0) {
-                if (arr[row][col - counter] == 'K') {
+                if (arr[row][col - counter] == 'K' || arr[row][col - counter] == 'P') {
                     fprintf(out, "%i %i %i ", row, col - counter, 1);
                     neighbours_counter += 3;
                     break;
@@ -144,17 +134,17 @@ void find_neighbours(int row, int col, int *line_counter, char ** arr, Maze * ma
         }
 }
 
-
 void transform_maze_format(FILE *in, FILE *out, Maze *maze) {
-    int line_counter = 1; 
+    int line_counter = 2; 
     int row, col;
     row = col = 1;
 
     char ** arr = load_data(in, maze);
 
     while (row < maze->rows) {
-        if (is_crossing(row, col, arr));
+        if (is_crossing(row, col, arr)){
             line_counter++;
+        }    
         
         if (col == maze->cols -2){
             col = 1;
@@ -172,7 +162,7 @@ void transform_maze_format(FILE *in, FILE *out, Maze *maze) {
             fprintf(out, "%i %i %i %i 1 0 0 0 0 0 0 0 0 0\n", maze->P_r, maze->P_c, row, col);
 
         //dla skrzyżowań 
-        find_neighbours(row, col, &line_counter, arr, maze, out);
+        find_neighbours(row, col, arr, maze, out);
 
         //dla 'P' w prawej i dolnej ścianie
         if ((row +1 == maze->P_r && col == maze->P_c) || (row == maze->P_r && col +1 == maze->P_c))
