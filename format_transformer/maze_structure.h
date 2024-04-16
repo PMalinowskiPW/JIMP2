@@ -12,6 +12,6 @@ Maze initialize_Maze();
 
 Maze read_Maze(FILE *in);
 
-void fprint_Maze (FILE *out, Maze * maze);
+void fprint_maze_data (FILE *out, Maze * maze, int line_counter);
 
 #endif

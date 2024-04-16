@@ -24,6 +24,11 @@ Maze read_Maze(FILE *in) {
     fscanf(in, "%i", &(maze.K_c));
 }
 
-void fprint_Maze (FILE *out, Maze * maze) {
-    fprintf(out, "%i %i %i %i %i %i\n", maze->rows, maze->cols, maze->P_r, maze->P_c, maze->K_r, maze->K_c);
+void fprint_maze_data (FILE *out, Maze * maze, int line_counter) {
+    fprintf(out, "%i %i %i %i %i %i %i", maze->rows, maze->cols, maze->P_r, maze->P_c, maze->K_r, maze->K_c, line_counter);
+
+    for (int i = 7; i < 14; i++)
+        fprintf(out, " 0");
+
+    fprintf(out,"\n");
 }
