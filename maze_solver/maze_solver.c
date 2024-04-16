@@ -62,6 +62,7 @@ void print_answer(int start_idx, Maze * maze, Array * A) {
     int wage, side = -1;
     int row_a, row_b, col_a, col_b;
     int path_counter = start_idx;
+    int first=0;
 
     printf("START\n");
 
@@ -87,13 +88,16 @@ void print_answer(int start_idx, Maze * maze, Array * A) {
                         else 
                             side = 0;
                     }
-                    printf("FORWARD 1\n");
                     curr_idx = i;
                     break;
                 }
 
                 wage = row_a - row_b + col_a - col_b;
-
+                if(first==0){
+                    printf("FORWARD %i\n", abs(wage)+1);
+                    first=1;
+                }else
+                printf("FORWARD %i\n", abs(wage));
                 switch (side)
                 {
                 case 0:
@@ -134,7 +138,7 @@ void print_answer(int start_idx, Maze * maze, Array * A) {
                     break;
                 }
 
-                printf("FORWARD %i\n", abs(wage));
+
                 
                 curr_idx = i;
                 break;
